@@ -1,5 +1,5 @@
 # Minimum-Wage-Tracker
-This is a paid by the hour app to calculate your minimum wage worth.
+This is an app for those paid by the hour to calculate your minimum wage worth.
 
 first install Python
 
