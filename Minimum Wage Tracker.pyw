@@ -18,7 +18,7 @@ class WorkHoursApp:
 
         self.create_widgets()
 
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.root.protocol("WM_DELETE_WINDOW", self.save_data_and_exit)
 
     def create_widgets(self):
         # Language selection
@@ -69,7 +69,7 @@ class WorkHoursApp:
         self.table.heading("start", text=self.translate("Start Time"))
         self.table.heading("end", text=self.translate("End Time"))
         self.table.heading("hours", text=self.translate("Hours Worked"))
-        self.table.heading("earnings", text=self.translate("Earnings (NIS)"))
+        self.table.heading("earnings", text=self.translate("Earnings (NIS)*"))
 
         for col in self.table["columns"]:
             self.table.column(col, width=100, anchor="center")
@@ -86,8 +86,11 @@ class WorkHoursApp:
         # Labels for total hours and total earnings
         self.total_hours_label = tk.Label(self.root, text=self.translate("Total hours worked: 0"))
         self.total_hours_label.pack()
-        self.total_earnings_label = tk.Label(self.root, text=self.translate("Total earnings: 0 NIS"))
+        self.total_earnings_label = tk.Label(self.root, text=self.translate("Total earnings: 0 NIS*"))
         self.total_earnings_label.pack()
+
+        # Note about earnings estimation
+        tk.Label(self.root, text=self.translate("* Earnings are estimations"), fg="gray").pack()
 
         # Button to import data
         tk.Button(self.root, text=self.translate("Import Data"), command=self.import_data).pack(pady=5)
@@ -108,9 +111,9 @@ class WorkHoursApp:
             "Start Time": "שעת התחלה",
             "End Time": "שעת סיום",
             "Hours Worked": "שעות עבודה",
-            "Earnings (NIS)": "שכר (₪)",
+            "Earnings (NIS)*": "שכר (₪)*",
             "Total hours worked: 0": "סה\"כ שעות עבודה: 0",
-            "Total earnings: 0 NIS": "סה\"כ שכר: 0 ₪",
+            "Total earnings: 0 NIS*": "סה\"כ שכר: 0 ₪*",
             "Import Data": "ייבוא נתונים",
             "* Earnings are estimations": "* השכר הוא הערכה",
         }
@@ -238,7 +241,7 @@ class WorkHoursApp:
         total_earnings = sum(self.calculate_earnings(entry[4]) for entry in self.data)
 
         self.total_hours_label.config(text=self.translate(f"Total hours worked: {total_hours:.2f}"))
-        self.total_earnings_label.config(text=self.translate(f"Total earnings: {total_earnings:.2f} NIS"))
+        self.total_earnings_label.config(text=self.translate(f"Total earnings: {total_earnings:.2f} NIS*"))
 
     def delete_entry(self):
         selected_item = self.table.selection()
@@ -264,9 +267,13 @@ class WorkHoursApp:
     def save_data(self):
         try:
             with open("work_hours_data.json", "w") as f:
-                             json.dump({'entries': self.data, 'wage_per_hour': self.wage_per_hour, 'language': self.language}, f)
+                json.dump({'entries': self.data, 'wage_per_hour': self.wage_per_hour, 'language': self.language}, f)
         except Exception as e:
             messagebox.showerror(self.translate("Error"), f"{self.translate('Failed to save data')}: {str(e)}")
+
+    def save_data_and_exit(self):
+        self.save_data()
+        self.root.destroy()
 
     def import_data(self):
         file_path = filedialog.askopenfilename(
@@ -288,13 +295,7 @@ class WorkHoursApp:
         except (json.JSONDecodeError, KeyError, ValueError) as e:
             messagebox.showerror(self.translate("Error"), f"{self.translate('Failed to import data')}: {str(e)}")
 
-    def on_closing(self):
-        if messagebox.askyesno(self.translate("Quit"), self.translate("Do you want to save changes before exiting?")):
-            self.save_data()
-        self.root.destroy()
-
 if __name__ == "__main__":
     root = tk.Tk()
     app = WorkHoursApp(root)
     root.mainloop()
-
