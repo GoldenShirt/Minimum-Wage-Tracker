@@ -23,33 +23,33 @@ class WorkHoursApp:
     def create_widgets(self):
         # Language selection
         self.language_var = tk.StringVar(value=self.language)
-        tk.Label(self.root, text="Language / שפה:").pack()
+        tk.Label(self.root, text=self.translate("Language / שפה:"), anchor="e").pack()
         language_menu = ttk.Combobox(self.root, textvariable=self.language_var, state="readonly")
         language_menu['values'] = ("English", "עברית")
         language_menu.pack()
         language_menu.bind("<<ComboboxSelected>>", self.switch_language)
 
         # Global wage per hour
-        self.wage_label = tk.Label(self.root, text=self.translate("Wage per hour (NIS):"))
+        self.wage_label = tk.Label(self.root, text=self.translate("Wage per hour (NIS):"), anchor="e")
         self.wage_label.pack()
-        self.wage_entry = tk.Entry(self.root)
+        self.wage_entry = tk.Entry(self.root, justify="right")
         self.wage_entry.pack()
         self.wage_entry.insert(0, str(int(self.wage_per_hour)))
         self.wage_entry.bind("<FocusOut>", self.update_wage)
         self.wage_entry.bind("<Return>", self.update_wage)
 
         # Input fields to add new entry
-        tk.Label(self.root, text=self.translate("Date:")).pack()
+        tk.Label(self.root, text=self.translate("Date:"), anchor="e").pack()
         self.date_entry = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2, 
-                                    year=datetime.now().year, date_pattern='dd/mm/yyyy')
+                                    year=datetime.now().year, date_pattern='dd/mm/yyyy', justify="right")
         self.date_entry.pack()
 
-        tk.Label(self.root, text=self.translate("Start Time:")).pack()
-        self.start_time_entry = tk.Entry(self.root)
+        tk.Label(self.root, text=self.translate("Start Time:"), anchor="e").pack()
+        self.start_time_entry = tk.Entry(self.root, justify="right")
         self.start_time_entry.pack()
 
-        tk.Label(self.root, text=self.translate("End Time:")).pack()
-        self.end_time_entry = tk.Entry(self.root)
+        tk.Label(self.root, text=self.translate("End Time:"), anchor="e").pack()
+        self.end_time_entry = tk.Entry(self.root, justify="right")
         self.end_time_entry.pack()
 
         # Button frame for Add Entry and Delete Entry
@@ -84,13 +84,13 @@ class WorkHoursApp:
         self.table.bind("<Double-1>", self.start_edit)
 
         # Labels for total hours and total earnings
-        self.total_hours_label = tk.Label(self.root, text=self.translate("Total hours worked: 0"))
+        self.total_hours_label = tk.Label(self.root, text=self.translate("Total hours worked: 0"), anchor="e")
         self.total_hours_label.pack()
-        self.total_earnings_label = tk.Label(self.root, text=self.translate("Total earnings: 0 NIS*"))
+        self.total_earnings_label = tk.Label(self.root, text=self.translate("Total earnings: 0 NIS*"), anchor="e")
         self.total_earnings_label.pack()
 
         # Note about earnings estimation
-        tk.Label(self.root, text=self.translate("* Earnings are estimations"), fg="gray").pack()
+        tk.Label(self.root, text=self.translate("* Earnings are estimations"), fg="gray", anchor="e").pack()
 
         # Button to import data
         tk.Button(self.root, text=self.translate("Import Data"), command=self.import_data).pack(pady=5)
@@ -175,7 +175,7 @@ class WorkHoursApp:
             self.update_totals()
             entry.destroy()
 
-        entry = tk.Entry(self.table)
+        entry = tk.Entry(self.table, justify="right")
         entry.insert(0, current_value)
         entry.select_range(0, tk.END)
         entry.focus_set()
