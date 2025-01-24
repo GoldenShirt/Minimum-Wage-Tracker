@@ -1,15 +1,24 @@
-#Minimum-Wage-Tracker
-This is an app for those paid by the hour to calculate your minimum wage worth.
+# Minimum Wage Tracker
 
-first install Python
+Minimum Wage Tracker is an application designed to help hourly wage workers calculate their earnings based on the minimum wage.
 
-then run in CMD
+## Installation
 
-pip install tk
+To get started, follow these steps:
 
-and then:
+1. Ensure you have Python installed on your system. You can download Python from [python.org](https://www.python.org/).
 
-pip install tkcalendar
+2. Open your Command Prompt (CMD) or terminal.
 
-Then just put the folder of the program somewhere and open it with double click.
+3. Install the required dependencies by running the following commands:
+    ```
+    pip install tk
+    pip install tkcalendar
+    ```
+
+## Usage
+
+1. Place the program folder in a convenient location on your computer.
+
+2. Open the program by double-clicking the main script file.
 
