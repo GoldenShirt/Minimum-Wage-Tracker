@@ -21,7 +21,7 @@ class WorkHoursApp:
     def create_widgets(self):
         # Language selection
         self.language_var = tk.StringVar(value=self.language)
-        tk.Label(self.root, text=self.translate("Language / שפה:"), anchor="e").pack()
+        tk.Label(self.root, text=self.translate(":Language / שפה"), anchor="e").pack()
         language_menu = ttk.Combobox(self.root, textvariable=self.language_var, state="readonly")
         language_menu['values'] = ("English", "עברית")
         language_menu.pack()
@@ -116,10 +116,10 @@ class WorkHoursApp:
 
     def translate(self, text):
         translations = {
-            "Wage per hour (NIS):": "שכר לשעה (₪):",
-            "Date:": "תאריך:",
-            "Start Time:": "שעת התחלה:",
-            "End Time:": "שעת סיום:",
+            "Wage per hour (NIS):": "(₪) :שכר לשעה",
+            "Date:": ":תאריך",
+            "Start Time:": ":שעת התחלה",
+            "End Time:": ":שעת סיום",
             "Add Entry": "הוסף רשומה",
             "Delete Entry": "מחק רשומה",
             "Date": "תאריך",
