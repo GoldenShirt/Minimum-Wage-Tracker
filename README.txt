@@ -1,6 +1,6 @@
 # Minimum Wage Tracker
 
-Minimum Wage Tracker is an application designed to help hourly wage workers calculate their earnings based on the minimum wage.
+This is an app for those paid by the hour to calculate your minimum wage worth.
 
 ## Installation
 
