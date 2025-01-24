@@ -15,9 +15,7 @@ class WorkHoursApp:
         self.wage_per_hour = 32  # Default wage
         self.language = "English"  # Default language
         self.load_data()
-
         self.create_widgets()
-
         self.root.protocol("WM_DELETE_WINDOW", self.save_data_and_exit)
 
     def create_widgets(self):
@@ -29,10 +27,14 @@ class WorkHoursApp:
         language_menu.pack()
         language_menu.bind("<<ComboboxSelected>>", self.switch_language)
 
+        # Set RTL for Hebrew
+        if self.language == "עברית":
+            self.configure_rtl()
+
         # Global wage per hour
         self.wage_label = tk.Label(self.root, text=self.translate("Wage per hour (NIS):"), anchor="e")
         self.wage_label.pack()
-        self.wage_entry = tk.Entry(self.root, justify="right")
+        self.wage_entry = tk.Entry(self.root, justify="right" if self.language == "עברית" else "left")
         self.wage_entry.pack()
         self.wage_entry.insert(0, str(int(self.wage_per_hour)))
         self.wage_entry.bind("<FocusOut>", self.update_wage)
@@ -40,16 +42,16 @@ class WorkHoursApp:
 
         # Input fields to add new entry
         tk.Label(self.root, text=self.translate("Date:"), anchor="e").pack()
-        self.date_entry = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2, 
+        self.date_entry = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
                                     year=datetime.now().year, date_pattern='dd/mm/yyyy', justify="right")
         self.date_entry.pack()
 
         tk.Label(self.root, text=self.translate("Start Time:"), anchor="e").pack()
-        self.start_time_entry = tk.Entry(self.root, justify="right")
+        self.start_time_entry = tk.Entry(self.root, justify="right" if self.language == "עברית" else "left")
         self.start_time_entry.pack()
 
         tk.Label(self.root, text=self.translate("End Time:"), anchor="e").pack()
-        self.end_time_entry = tk.Entry(self.root, justify="right")
+        self.end_time_entry = tk.Entry(self.root, justify="right" if self.language == "עברית" else "left")
         self.end_time_entry.pack()
 
         # Button frame for Add Entry and Delete Entry
@@ -57,26 +59,32 @@ class WorkHoursApp:
         button_frame.pack(pady=10)
 
         # Button to save the entry
-        tk.Button(button_frame, text=self.translate("Add Entry"), command=self.add_entry).pack(side=tk.LEFT, padx=5)
+        tk.Button(button_frame, text=self.translate("Add Entry"), command=self.add_entry).pack(side=tk.RIGHT if self.language == "עברית" else tk.LEFT, padx=5)
 
         # Button to delete a selected entry
-        tk.Button(button_frame, text=self.translate("Delete Entry"), command=self.delete_entry).pack(side=tk.LEFT, padx=5)
+        tk.Button(button_frame, text=self.translate("Delete Entry"), command=self.delete_entry).pack(side=tk.RIGHT if self.language == "עברית" else tk.LEFT, padx=5)
 
         # Table to display data
         self.table = ttk.Treeview(self.root, columns=("date", "day", "start", "end", "hours", "earnings"), show='headings')
-        self.table.heading("date", text=self.translate("Date"))
-        self.table.heading("day", text=self.translate("Day"))
-        self.table.heading("start", text=self.translate("Start Time"))
-        self.table.heading("end", text=self.translate("End Time"))
-        self.table.heading("hours", text=self.translate("Hours Worked"))
-        self.table.heading("earnings", text=self.translate("Earnings (NIS)*"))
+
+        # Configure table headers and columns
+        headers = {
+            "date": self.translate("Date"),
+            "day": self.translate("Day"),
+            "start": self.translate("Start Time"),
+            "end": self.translate("End Time"),
+            "hours": self.translate("Hours Worked"),
+            "earnings": self.translate("Earnings (NIS)*")
+        }
 
         for col in self.table["columns"]:
-            self.table.column(col, width=100, anchor="center")
+            self.table.heading(col, text=headers[col])
+            anchor = "e" if self.language == "עברית" else "w"
+            self.table.column(col, width=100, anchor=anchor)
 
         self.table.pack(fill="both", expand=True)
 
-        # Vertical lines between columns
+        # Style configuration
         style = ttk.Style()
         style.configure("Treeview", rowheight=25)
         style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})])
@@ -84,9 +92,9 @@ class WorkHoursApp:
         self.table.bind("<Double-1>", self.start_edit)
 
         # Labels for total hours and total earnings
-        self.total_hours_label = tk.Label(self.root, text=self.translate("Total hours worked: 0"), anchor="e")
+        self.total_hours_label = tk.Label(self.root, text="", anchor="e")
         self.total_hours_label.pack()
-        self.total_earnings_label = tk.Label(self.root, text=self.translate("Total earnings: 0 NIS*"), anchor="e")
+        self.total_earnings_label = tk.Label(self.root, text="", anchor="e")
         self.total_earnings_label.pack()
 
         # Note about earnings estimation
@@ -97,6 +105,14 @@ class WorkHoursApp:
 
         self.update_table()
         self.update_totals()
+
+    def configure_rtl(self):
+        # Configure RTL settings for Hebrew
+        for widget in self.root.winfo_children():
+            if isinstance(widget, (tk.Label, tk.Entry, ttk.Combobox)):
+                widget.configure(justify="right")
+            if isinstance(widget, tk.Label):
+                widget.configure(anchor="e")
 
     def translate(self, text):
         translations = {
@@ -112,12 +128,52 @@ class WorkHoursApp:
             "End Time": "שעת סיום",
             "Hours Worked": "שעות עבודה",
             "Earnings (NIS)*": "שכר (₪)*",
-            "Total hours worked: 0": "סה\"כ שעות עבודה: 0",
-            "Total earnings: 0 NIS*": "סה\"כ שכר: 0 ₪*",
             "Import Data": "ייבוא נתונים",
             "* Earnings are estimations": "* השכר הוא הערכה",
+            # Special translations for totals
+            "Total hours worked: ": "סה\"כ שעות עבודה: ",
+            "Total earnings: ": "סה\"כ שכר: ",
+            " NIS*": " ₪*",
+            # Days of the week
+            "Sunday": "יום ראשון",
+            "Monday": "יום שני",
+            "Tuesday": "יום שלישי",
+            "Wednesday": "יום רביעי",
+            "Thursday": "יום חמישי",
+            "Friday": "יום שישי",
+            "Saturday": "יום שבת",
+            # Error messages
+            "Invalid Wage": "שכר לא תקין",
+            "Please enter a valid positive number for the wage.": "אנא הכנס מספר חיובי תקין עבור השכר.",
+            "Invalid time": "שעה לא תקינה",
+            "Please enter time in HH:MM format": "אנא הכנס שעה בפורמט HH:MM",
+            "Invalid date": "תאריך לא תקין",
+            "Please enter a valid date": "אנא הכנס תאריך תקין",
+            "No Selection": "לא נבחרה רשומה",
+            "Please select an entry to delete.": "אנא בחר רשומה למחיקה.",
+            "Error": "שגיאה",
+            "Failed to load data": "טעינת הנתונים נכשלה",
+            "Failed to save data": "שמירת הנתונים נכשלה",
+            "Select file": "בחר קובץ",
+            "JSON files": "קבצי JSON",
+            "Invalid file format": "פורמט קובץ לא תקין",
+            "Failed to import data": "ייבוא הנתונים נכשל"
         }
+
         if self.language == "עברית":
+            # Handle day translations
+            for eng_day in ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]:
+                if eng_day in text:
+                    return translations[eng_day]
+
+            # Handle total hours and earnings
+            if text.startswith("Total hours worked: "):
+                value = text.replace("Total hours worked: ", "")
+                return f"{translations['Total hours worked: ']}{value}"
+            elif text.startswith("Total earnings: "):
+                value = text.replace("Total earnings: ", "").replace(" NIS*", "")
+                return f"{translations['Total earnings: ']}{value}{translations[' NIS*']}"
+
             return translations.get(text, text)
         return text
 
@@ -188,7 +244,8 @@ class WorkHoursApp:
     def add_entry(self):
         date = self.date_entry.get()
         try:
-            day = datetime.strptime(date, '%d/%m/%Y').strftime('%A')
+            day_in_english = datetime.strptime(date, '%d/%m/%Y').strftime('%A')
+            day = self.translate(day_in_english)  # Translate the day name
         except ValueError:
             messagebox.showerror(self.translate("Invalid date"), self.translate("Please enter a valid date"))
             return
@@ -209,15 +266,15 @@ class WorkHoursApp:
 
         hours_worked = self.calculate_work_hours(start_time, end_time)
         earnings = self.calculate_earnings(hours_worked)
-        self.data.append((date, day, start_time, end_time, hours_worked, earnings))
-        self.data.sort(key=lambda x: datetime.strptime(x[0], '%d/%m/%Y'))  # Sort chronologically by date
+        self.data.append((date, day_in_english, start_time, end_time, hours_worked, earnings))
+        self.data.sort(key=lambda x: datetime.strptime(x[0], '%d/%m/%Y'))
         self.update_table()
         self.update_totals()
 
     def calculate_work_hours(self, start_time, end_time):
         start = datetime.strptime(start_time, "%H:%M")
         end = datetime.strptime(end_time, "%H:%M")
-        
+
         if end <= start:
             end += timedelta(days=1)
 
@@ -232,7 +289,8 @@ class WorkHoursApp:
         for row in self.table.get_children():
             self.table.delete(row)
         for entry in self.data:
-            date, day, start, end, hours, _ = entry
+            date, day_in_english, start, end, hours, _ = entry
+            day = self.translate(day_in_english)  # Translate the day name
             earnings = self.calculate_earnings(hours)
             self.table.insert("", "end", values=(date, day, start, end, hours, earnings))
 
@@ -240,8 +298,11 @@ class WorkHoursApp:
         total_hours = sum(entry[4] for entry in self.data)
         total_earnings = sum(self.calculate_earnings(entry[4]) for entry in self.data)
 
-        self.total_hours_label.config(text=self.translate(f"Total hours worked: {total_hours:.2f}"))
-        self.total_earnings_label.config(text=self.translate(f"Total earnings: {total_earnings:.2f} NIS*"))
+        hours_text = f"Total hours worked: {total_hours:.2f}"
+        earnings_text = f"Total earnings: {total_earnings:.2f} NIS*"
+
+        self.total_hours_label.config(text=self.translate(hours_text))
+        self.total_earnings_label.config(text=self.translate(earnings_text))
 
     def delete_entry(self):
         selected_item = self.table.selection()
@@ -267,7 +328,11 @@ class WorkHoursApp:
     def save_data(self):
         try:
             with open("work_hours_data.json", "w") as f:
-                json.dump({'entries': self.data, 'wage_per_hour': self.wage_per_hour, 'language': self.language}, f)
+                json.dump({
+                    'entries': self.data,
+                    'wage_per_hour': self.wage_per_hour,
+                    'language': self.language
+                }, f)
         except Exception as e:
             messagebox.showerror(self.translate("Error"), f"{self.translate('Failed to save data')}: {str(e)}")
 
