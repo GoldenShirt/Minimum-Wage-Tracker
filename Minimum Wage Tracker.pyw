@@ -26,7 +26,7 @@ NOTE_LABEL = "* Earnings are estimations"
 # --- Translation dictionary ---
 TRANSLATIONS = {
     LANGUAGE_LABEL: ":Language / שפה",
-    WAGE_LABEL: ":שכר לשעה (₪)",
+    WAGE_LABEL: ":(₪) שכר לשעה",
     DATE_LABEL: ":תאריך",
     START_TIME_LABEL: ":שעת התחלה",
     END_TIME_LABEL: ":שעת סיום",
@@ -104,10 +104,11 @@ class WorkHoursApp:
         lang_frame.grid(row=cur_row, column=1, sticky="ew", pady=5)
         self.language_var = tk.StringVar(value=self.language)
         if self.language == "עברית":
-            # In Hebrew: place the combobox first, then the label (so the label appears to the right)
+            # Add an empty column to push the group to the right
+            lang_frame.columnconfigure(0, weight=1)
             lang_combo = ttk.Combobox(lang_frame, textvariable=self.language_var, state="readonly", width=10)
-            lang_combo.grid(row=0, column=0, padx=5, sticky="e")
-            ttk.Label(lang_frame, text=self.translate(LANGUAGE_LABEL)).grid(row=0, column=1, sticky="w")
+            lang_combo.grid(row=0, column=1, padx=5, sticky="e")
+            ttk.Label(lang_frame, text=self.translate(LANGUAGE_LABEL)).grid(row=0, column=2, padx=5, sticky="e")
         else:
             ttk.Label(lang_frame, text=self.translate(LANGUAGE_LABEL)).grid(row=0, column=0, sticky="w")
             lang_combo = ttk.Combobox(lang_frame, textvariable=self.language_var, state="readonly", width=10)
@@ -120,10 +121,10 @@ class WorkHoursApp:
         wage_frame = ttk.Frame(main_frame)
         wage_frame.grid(row=cur_row, column=1, sticky="ew", pady=5)
         if self.language == "עברית":
-            # In Hebrew: place the entry first, then the label.
+            wage_frame.columnconfigure(0, weight=1)
             self.wage_entry = ttk.Entry(wage_frame, justify="right", width=10)
-            self.wage_entry.grid(row=0, column=0, padx=5, sticky="e")
-            ttk.Label(wage_frame, text=self.translate(WAGE_LABEL)).grid(row=0, column=1, sticky="w")
+            self.wage_entry.grid(row=0, column=1, padx=5, sticky="e")
+            ttk.Label(wage_frame, text=self.translate(WAGE_LABEL)).grid(row=0, column=2, padx=5, sticky="e")
         else:
             ttk.Label(wage_frame, text=self.translate(WAGE_LABEL)).grid(row=0, column=0, sticky="w")
             self.wage_entry = ttk.Entry(wage_frame, justify="left", width=10)
