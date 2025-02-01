@@ -25,25 +25,24 @@ NOTE_LABEL = "* Earnings are estimations"
 
 # --- Translation dictionary ---
 TRANSLATIONS = {
-    LANGUAGE_LABEL: ":Language / שפה" ,
-    WAGE_LABEL: ":שכר לשעה (₪)",  # now shows wage text with (₪) after text in Hebrew
+    LANGUAGE_LABEL: ":Language / שפה",
+    WAGE_LABEL: ":שכר לשעה (₪)",
     DATE_LABEL: ":תאריך",
     START_TIME_LABEL: ":שעת התחלה",
     END_TIME_LABEL: ":שעת סיום",
     ADD_ENTRY_LABEL: "הוסף רשומה",
     DELETE_ENTRY_LABEL: "מחק רשומה",
-    NEW_ENTRY_LABEL: "רשומה חדשה",  # new translation for "New Entry"
+    NEW_ENTRY_LABEL: "רשומה חדשה",
     TABLE_DATE: "תאריך",
     TABLE_DAY: "יום",
     TABLE_START: "שעת התחלה",
     TABLE_END: "שעת סיום",
     TABLE_HOURS: "שעות עבודה",
-    TABLE_EARNINGS: "*(₪) שכר",   # already has the symbol to the right
+    TABLE_EARNINGS: "*(₪) שכר",
     IMPORT_DATA_LABEL: "ייבוא נתונים",
     NOTE_LABEL: "* השכר הוא הערכה",
     "Total hours worked: ": "סה\"כ שעות עבודה: ",
-    "Total earnings: ": "סה\"כ *(₪) שכר:",  # updated translation for total earnings
-
+    "Total earnings: ": "סה\"כ שכר *(₪):",
     # Days of the week:
     "Sunday": "יום ראשון",
     "Monday": "יום שני",
@@ -105,9 +104,10 @@ class WorkHoursApp:
         lang_frame.grid(row=cur_row, column=1, sticky="ew", pady=5)
         self.language_var = tk.StringVar(value=self.language)
         if self.language == "עברית":
-            ttk.Label(lang_frame, text=self.translate(LANGUAGE_LABEL)).grid(row=0, column=1, sticky="e")
+            # In Hebrew: place the combobox first, then the label (so the label appears to the right)
             lang_combo = ttk.Combobox(lang_frame, textvariable=self.language_var, state="readonly", width=10)
-            lang_combo.grid(row=0, column=0, padx=5, sticky="w")
+            lang_combo.grid(row=0, column=0, padx=5, sticky="e")
+            ttk.Label(lang_frame, text=self.translate(LANGUAGE_LABEL)).grid(row=0, column=1, sticky="w")
         else:
             ttk.Label(lang_frame, text=self.translate(LANGUAGE_LABEL)).grid(row=0, column=0, sticky="w")
             lang_combo = ttk.Combobox(lang_frame, textvariable=self.language_var, state="readonly", width=10)
@@ -120,9 +120,10 @@ class WorkHoursApp:
         wage_frame = ttk.Frame(main_frame)
         wage_frame.grid(row=cur_row, column=1, sticky="ew", pady=5)
         if self.language == "עברית":
-            ttk.Label(wage_frame, text=self.translate(WAGE_LABEL)).grid(row=0, column=1, sticky="e")
+            # In Hebrew: place the entry first, then the label.
             self.wage_entry = ttk.Entry(wage_frame, justify="right", width=10)
-            self.wage_entry.grid(row=0, column=0, padx=5, sticky="w")
+            self.wage_entry.grid(row=0, column=0, padx=5, sticky="e")
+            ttk.Label(wage_frame, text=self.translate(WAGE_LABEL)).grid(row=0, column=1, sticky="w")
         else:
             ttk.Label(wage_frame, text=self.translate(WAGE_LABEL)).grid(row=0, column=0, sticky="w")
             self.wage_entry = ttk.Entry(wage_frame, justify="left", width=10)
@@ -133,13 +134,17 @@ class WorkHoursApp:
         cur_row += 1
 
         # --- New Entry Input Fields ---
-        input_frame = ttk.LabelFrame(main_frame, text=self.translate(NEW_ENTRY_LABEL), padding=10)
+        # For Hebrew, use a tk.LabelFrame (instead of ttk.LabelFrame) so we can set labelanchor.
+        if self.language == "עברית":
+            input_frame = tk.LabelFrame(main_frame, text=self.translate(NEW_ENTRY_LABEL),
+                                        padx=10, pady=10, labelanchor="ne")
+        else:
+            input_frame = ttk.LabelFrame(main_frame, text=self.translate(NEW_ENTRY_LABEL), padding=10)
         input_frame.grid(row=cur_row, column=1, sticky="ew", pady=10)
         input_frame.columnconfigure(0, weight=1)
         input_frame.columnconfigure(1, weight=1)
 
         if self.language == "עברית":
-            # For RTL, labels on the right
             ttk.Label(input_frame, text=self.translate(DATE_LABEL)).grid(row=0, column=1, sticky="e", padx=5, pady=2)
             self.date_entry = DateEntry(input_frame, width=12, background='darkblue',
                                         foreground='white', borderwidth=2,
@@ -154,7 +159,6 @@ class WorkHoursApp:
             self.end_time_entry = ttk.Entry(input_frame, justify="right")
             self.end_time_entry.grid(row=2, column=0, sticky="w", padx=5, pady=2)
         else:
-            # For LTR, labels on the left
             ttk.Label(input_frame, text=self.translate(DATE_LABEL)).grid(row=0, column=0, sticky="e", padx=5, pady=2)
             self.date_entry = DateEntry(input_frame, width=12, background='darkblue',
                                         foreground='white', borderwidth=2,
@@ -242,7 +246,6 @@ class WorkHoursApp:
                 value = text.replace("Total hours worked: ", "")
                 return f"{TRANSLATIONS['Total hours worked: ']}{value}"
             if text.startswith("Total earnings: "):
-                # Remove the appended NIS* if present
                 value = text.replace("Total earnings: ", "").replace(" NIS*", "")
                 return f"{TRANSLATIONS['Total earnings: ']} {value}"
             return TRANSLATIONS.get(text, text)
