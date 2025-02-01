@@ -76,6 +76,7 @@ class WorkHoursApp:
         self.root.title("Minimum Wage Tracker")
         self.root.geometry("800x600")
         self.root.resizable(True, True)
+        self.set_style()
 
         # Data storage
         self.data = []
@@ -85,6 +86,28 @@ class WorkHoursApp:
         self.load_data()
         self.create_widgets()
         self.root.protocol("WM_DELETE_WINDOW", self.save_data_and_exit)
+
+    def set_style(self):
+        """Configure a modern, formal look using the 'clam' theme and custom styles."""
+        style = ttk.Style()
+        style.theme_use('clam')
+        # Configure overall fonts and colors:
+        default_font = ("Segoe UI", 10)
+        style.configure(".", font=default_font, background="#f7f7f7")
+        style.configure("TFrame", background="#f7f7f7")
+        style.configure("TLabel", background="#f7f7f7")
+        style.configure("TButton", background="#e1e1e1", relief="flat")
+        style.map("TButton",
+                  background=[("active", "#d4d4d4")])
+        style.configure("Treeview",
+                        background="white",
+                        fieldbackground="white",
+                        bordercolor="#f7f7f7",
+                        borderwidth=0)
+        style.configure("Treeview.Heading", font=("Segoe UI", 10, "bold"), background="#e1e1e1")
+        # LabelFrame styling (for modern flat look)
+        style.configure("TLabelframe", background="#f7f7f7", borderwidth=1)
+        style.configure("TLabelframe.Label", font=("Segoe UI", 10, "bold"))
 
     def create_widgets(self):
         # Main container frame with three columns:
@@ -138,7 +161,8 @@ class WorkHoursApp:
         # For Hebrew, use a tk.LabelFrame (instead of ttk.LabelFrame) so we can set labelanchor.
         if self.language == "עברית":
             input_frame = tk.LabelFrame(main_frame, text=self.translate(NEW_ENTRY_LABEL),
-                                        padx=10, pady=10, labelanchor="ne")
+                                        padx=10, pady=10, labelanchor="ne", font=("Segoe UI", 10, "bold"))
+            input_frame.configure(bg="#f7f7f7")
         else:
             input_frame = ttk.LabelFrame(main_frame, text=self.translate(NEW_ENTRY_LABEL), padding=10)
         input_frame.grid(row=cur_row, column=1, sticky="ew", pady=10)
