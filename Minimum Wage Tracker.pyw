@@ -6,7 +6,7 @@ import json
 import os
 
 # --- Constants for label keys ---
-LANGUAGE_LABEL = ":Language / שפה"
+LANGUAGE_LABEL = "Language / שפה:"    # colon moved to the right for English
 WAGE_LABEL = "Wage per hour (NIS):"
 DATE_LABEL = "Date:"
 START_TIME_LABEL = "Start Time:"  # note the colon
@@ -16,8 +16,8 @@ DELETE_ENTRY_LABEL = "Delete Entry"
 NEW_ENTRY_LABEL = "New Entry"
 TABLE_DATE = "Date"
 TABLE_DAY = "Day"
-TABLE_START = "Start Time:"  # use same key as input
-TABLE_END = "End Time:"      # use same key as input
+TABLE_START = "Start Time"  # use same key as input
+TABLE_END = "End Time"      # use same key as input
 TABLE_HOURS = "Hours Worked"
 TABLE_EARNINGS = "Earnings (NIS)*"
 IMPORT_DATA_LABEL = "Import Data"
@@ -25,24 +25,25 @@ NOTE_LABEL = "* Earnings are estimations"
 
 # --- Translation dictionary ---
 TRANSLATIONS = {
-    LANGUAGE_LABEL: LANGUAGE_LABEL,  # dual text remains the same
-    WAGE_LABEL: "(₪) :שכר לשעה",
+    LANGUAGE_LABEL: ":Language / שפה" ,
+    WAGE_LABEL: ":שכר לשעה (₪)",  # now shows wage text with (₪) after text in Hebrew
     DATE_LABEL: ":תאריך",
     START_TIME_LABEL: ":שעת התחלה",
     END_TIME_LABEL: ":שעת סיום",
     ADD_ENTRY_LABEL: "הוסף רשומה",
     DELETE_ENTRY_LABEL: "מחק רשומה",
+    NEW_ENTRY_LABEL: "רשומה חדשה",  # new translation for "New Entry"
     TABLE_DATE: "תאריך",
     TABLE_DAY: "יום",
-    TABLE_START: ":שעת התחלה",
-    TABLE_END: ":שעת סיום",
+    TABLE_START: "שעת התחלה",
+    TABLE_END: "שעת סיום",
     TABLE_HOURS: "שעות עבודה",
-    TABLE_EARNINGS: "שכר (₪)*",
+    TABLE_EARNINGS: "*(₪) שכר",   # already has the symbol to the right
     IMPORT_DATA_LABEL: "ייבוא נתונים",
     NOTE_LABEL: "* השכר הוא הערכה",
     "Total hours worked: ": "סה\"כ שעות עבודה: ",
-    "Total earnings: ": "סה\"כ שכר: ",
-    " NIS*": " ₪*",
+    "Total earnings: ": "סה\"כ *(₪) שכר:",  # updated translation for total earnings
+
     # Days of the week:
     "Sunday": "יום ראשון",
     "Monday": "יום שני",
@@ -236,14 +237,14 @@ class WorkHoursApp:
         self.update_totals()
 
     def translate(self, text):
-        # In Hebrew, if the text begins with "Total hours worked:" or "Total earnings:" we handle that.
         if self.language == "עברית":
             if text.startswith("Total hours worked: "):
                 value = text.replace("Total hours worked: ", "")
                 return f"{TRANSLATIONS['Total hours worked: ']}{value}"
             if text.startswith("Total earnings: "):
+                # Remove the appended NIS* if present
                 value = text.replace("Total earnings: ", "").replace(" NIS*", "")
-                return f"{TRANSLATIONS['Total earnings: ']}{value}{TRANSLATIONS[' NIS*']}"
+                return f"{TRANSLATIONS['Total earnings: ']} {value}"
             return TRANSLATIONS.get(text, text)
         return text
 
